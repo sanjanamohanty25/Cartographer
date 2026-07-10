@@ -1,4 +1,4 @@
-# CI/CD Intelligence Layer — Problem Statement & Proposed Solution
+# Cartographer — Problem Statement & Proposed Solution
 
 **Project:** Smart Infrastructure Migration & Deployment Gating
 **Built with:** Neuro-SAN | Cognizant Internal Hackathon

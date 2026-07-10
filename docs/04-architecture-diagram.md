@@ -1,10 +1,10 @@
-# CI/CD Intelligence Layer — Architecture Diagrams
+# Cartographer — Architecture Diagrams
 
 **Derived from:** [00-problem-statement.md](00-problem-statement.md) · [02-hld.md](02-hld.md). Companions: [DFD](01-dfd.md) · [LLD](03-lld.md).
 
 Six views: system landscape, container view, agent network topology, cross-phase signal flow, production deployment, and hackathon deployment.
 
-> **Note:** these are *system* architecture diagrams describing how the CI/CD Intelligence Layer itself is built. They are distinct from the **migration architecture diagram** that P1 (Lead Architect Agent) generates as a product deliverable for each migration request — that per-request diagram is a rendered SVG/PNG of the target cloud resources being proposed for the stakeholder's own workload, attached to the approval-request email alongside a `Report.pdf` summary (see [00 §7 — P1](00-problem-statement.md#7-agent-by-agent-specification), [DFD D3](01-dfd.md#4-data-stores), [LLD §4.2](03-lld.md#42-blueprint)).
+> **Note:** these are *system* architecture diagrams describing how the Cartographer itself is built. They are distinct from the **migration architecture diagram** that P1 (Lead Architect Agent) generates as a product deliverable for each migration request — that per-request diagram is a rendered SVG/PNG of the target cloud resources being proposed for the stakeholder's own workload, attached to the approval-request email alongside a `Report.pdf` summary (see [00 §7 — P1](00-problem-statement.md#7-agent-by-agent-specification), [DFD D3](01-dfd.md#4-data-stores), [LLD §4.2](03-lld.md#42-blueprint)).
 
 > **Scope reminder carried through every view below:** there is no live target-cloud-provider integration and no deployment runner in this release. Nothing in this document depicts a `terraform apply` call or a connection to AWS/Azure/GCP as a running system — the target cloud provider is only ever a string P1 uses to select which Terraform provider block to draft.
 
@@ -19,7 +19,7 @@ flowchart LR
         PM["IT Project Manager /<br/>Infrastructure Director"]
     end
 
-    subgraph System["CI/CD Intelligence Layer"]
+    subgraph System["Cartographer"]
         ORCH["Migration Orchestrator"]
         AGENTS["Neuro-SAN Agent Network<br/>(P1-P6)"]
         GATE["Approval Gate + Attempt Cap (P7)"]

@@ -1,4 +1,4 @@
-# CI/CD Intelligence Layer — Design Document Set (v2)
+# Cartographer — Design Document Set (v2)
 
 Built on **Neuro-SAN** as the multi-agent orchestrator.
 

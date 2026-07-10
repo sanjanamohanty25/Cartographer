@@ -1,4 +1,4 @@
-# CI/CD Intelligence Layer — High-Level Design (HLD)
+# Cartographer — High-Level Design (HLD)
 
 **Derived from:** [00-problem-statement.md](00-problem-statement.md) (authoritative — problem + solution). Companions: [DFD](01-dfd.md) · [LLD](03-lld.md) · [Architecture Diagram](04-architecture-diagram.md).
 **Scope:** system-level structure, deployment, integration, data, security, scalability, availability, observability, and the design decisions binding the LLD.

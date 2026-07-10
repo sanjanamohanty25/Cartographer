@@ -1,4 +1,4 @@
-# CI/CD Intelligence Layer — Low-Level Design (LLD)
+# Cartographer — Low-Level Design (LLD)
 
 **Derived from:** [00-problem-statement.md](00-problem-statement.md) · [02-hld.md](02-hld.md) (authoritative structure). Companions: [DFD](01-dfd.md) · [Architecture Diagram](04-architecture-diagram.md).
 

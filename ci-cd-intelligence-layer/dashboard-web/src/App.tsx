@@ -10,7 +10,7 @@ export default function App() {
         <div className="logo">
           <div className="logo-mark" />
           <div>
-            <h1>CI/CD Intelligence</h1>
+            <h1>Cartographer</h1>
             <p className="brand-sub">Migration Control</p>
           </div>
         </div>

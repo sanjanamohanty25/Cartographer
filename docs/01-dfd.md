@@ -1,4 +1,4 @@
-# CI/CD Intelligence Layer — Data Flow Diagrams (DFD)
+# Cartographer — Data Flow Diagrams (DFD)
 
 **Derived from:** [00-problem-statement.md](00-problem-statement.md) (authoritative — problem + solution). Companion documents: [HLD](02-hld.md) · [LLD](03-lld.md) · [Architecture Diagrams](04-architecture-diagram.md).
 **Levels:** L0 (context) → L1 (system decomposition) → L2 (drill-downs of P1, P5, P7).
@@ -18,7 +18,7 @@ Mermaid cannot draw strict Gane–Sarson symbols; the mapping used throughout:
 
 ## 1. Level 0 — Context Diagram
 
-The system boundary is the **CI/CD Intelligence Layer** (Migration Orchestrator + Neuro-SAN agent network + data stores). Everything else is external.
+The system boundary is the **Cartographer** (Migration Orchestrator + Neuro-SAN agent network + data stores). Everything else is external.
 
 ```mermaid
 flowchart LR
@@ -27,7 +27,7 @@ flowchart LR
     E3["E3 Static Scan Tools<br/>(Checkov / Tfsec)"]
     E4["E4 SMTP Service"]
 
-    S(("P0<br/>CI/CD Intelligence<br/>Layer"))
+    S(("P0<br/>Cartographer<br/>Layer"))
 
     E1 -- "F1 migration prompt (source + target) + project.json" --> S
     S -- "F2 approval request email" --> E2
