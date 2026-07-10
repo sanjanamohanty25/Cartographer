@@ -48,7 +48,7 @@ if (-not (Test-Path $py)) { $py = "python" }
 Write-Host "[python] $py"
 
 if (-not $env:NVIDIA_API_KEY) {
-    Write-Warning "[llm] NVIDIA_API_KEY is empty — agent network will use the deterministic fallback draft."
+    Write-Warning "[llm] NVIDIA_API_KEY is empty - agent network will use the deterministic fallback draft."
 }
 
 $hasNode = [bool](Get-Command node -ErrorAction SilentlyContinue)
