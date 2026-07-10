@@ -1,0 +1,50 @@
+{
+  "project_name": "Treasury-GL-Core",
+  "organization": "Halberd Capital",
+  "migration_scope": {
+    "source_environment": "on-premises-datacenter-zurich",
+    "target_cloud_provider": "azure",
+    "preferred_region": "switzerlandnorth"
+  },
+  "database_source_profile": {
+    "database_engine": "Oracle Database Enterprise Edition",
+    "version": "19c (19.21.0.0)",
+    "edition_options": ["Partitioning", "Data Guard", "Advanced Security"],
+    "topology": "Data Guard (Primary + Physical Standby)",
+    "total_data_size_gb": 3400,
+    "active_connections": 520,
+    "hardware": {
+      "physical_cores_per_node": 20,
+      "ram_gb_per_node": 128,
+      "storage_capacity_tb": 3.0,
+      "storage_type": "All-Flash SAN"
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 48.0,
+      "peak_cpu_percent": 85.0,
+      "average_ram_percent": 66.0,
+      "peak_ram_percent": 84.0
+    },
+    "security_posture": {
+      "ssl_tls_required": true,
+      "data_at_rest_encrypted": true,
+      "encryption_method": "Oracle TDE (AES-256)",
+      "public_access_permitted": false,
+      "audit_logging_enabled": true,
+      "subnet_ingress_rules": [
+        { "source_cidr": "10.30.0.0/16", "allowed_port": 1521, "description": "Treasury app tier" }
+      ]
+    }
+  },
+  "compliance_requirements": { "frameworks": ["FINMA", "SOX", "GDPR"], "data_residency": "CH-only", "pii_present": true, "retention_policy_years": 10 },
+  "reliability_requirements": {
+    "target_sla": 99.99,
+    "rto_minutes": 8,
+    "rpo_minutes": 0,
+    "backup_retention_days": 90,
+    "high_availability_required": true,
+    "read_replicas_required": 1,
+    "disaster_recovery": "cross-region-standby"
+  },
+  "cost_constraints": { "monthly_budget_usd": 9000, "environment": "production" }
+}

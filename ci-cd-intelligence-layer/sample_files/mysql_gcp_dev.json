@@ -1,0 +1,41 @@
+{
+  "project_name": "Internal-Wiki-DB",
+  "organization": "Pixelforge Studios",
+  "migration_scope": {
+    "source_environment": "office-nas-vm",
+    "target_cloud_provider": "gcp",
+    "preferred_region": "us-central1"
+  },
+  "database_source_profile": {
+    "database_engine": "MySQL",
+    "version": "8.0.34",
+    "topology": "Single Node Instance",
+    "total_data_size_gb": 45,
+    "active_connections": 25,
+    "hardware": {
+      "physical_cores_per_node": 4,
+      "ram_gb_per_node": 16,
+      "storage_capacity_tb": 0.25,
+      "storage_type": "SSD"
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 12.0,
+      "peak_cpu_percent": 40.0,
+      "average_ram_percent": 30.0,
+      "peak_ram_percent": 55.0
+    },
+    "security_posture": {
+      "ssl_tls_required": true,
+      "data_at_rest_encrypted": true,
+      "public_access_permitted": false,
+      "audit_logging_enabled": false
+    }
+  },
+  "reliability_requirements": {
+    "target_sla": 99.0,
+    "backup_retention_days": 7,
+    "high_availability_required": false,
+    "disaster_recovery": "single-region-backup"
+  },
+  "cost_constraints": { "monthly_budget_usd": 300, "environment": "non-production" }
+}

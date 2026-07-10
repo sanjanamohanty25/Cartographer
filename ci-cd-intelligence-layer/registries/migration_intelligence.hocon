@@ -1,0 +1,354 @@
+# Self-contained registry (no cross-tree includes — those resolve relative to the
+# server CWD in neuro-san and fail). llm_config + aaosa defs are inlined here.
+
+# --- Single NVIDIA NIM model for ALL agents (see docs/03-lld.md §6) ---
+# Default below; NVIDIA_NIM_MODEL env var overrides. NVIDIA_API_KEY from env.
+llm_config = {
+    class = "nvidia"
+    model_name = "mistralai/mistral-small-4-119b-2603"
+    model_name = ${?NVIDIA_NIM_MODEL}
+    temperature = 0.1
+}
+
+# --- AAOSA protocol definitions (inlined from neuro-san-studio aaosa_basic) ---
+aaosa_instructions = """When you receive an inquiry, you will:
+1. If you are clearly not the right agent for this type of inquiry, reply you're not relevant.
+2. If there is a chance you're relevant, call your down-chain agents to determine if they can answer all or part of the inquiry.
+Do not assume what your down-chain agents can do. Always call them. You'll be surprised.
+3. Once all your down-chain agents have responded analyze their response and determine what the next step is. For instance:
+- Follow up with down-chain agents
+- Call other down-chain agents
+- Ask for clarification or additional information
+- Ask the most relevant down-chain agent to fulfill the inquiry
+- Compile and return your final response
+You may, in turn, be called by other agents in the system and have to act as a down-chain agent to them.
+4. When responding, format your response based on the 'mode' parameter:
+   - If there is no 'mode' parameter (i.e., the inquiry came directly from a human),
+     respond with a natural, human-readable answer.
+   - If a 'mode' parameter is present, return the following information:
+   [AAOSA]
+   Name: <your name>
+   Inquiry: <the inquiry>
+   Mode: <Determine | Follow up | Fulfill>
+   Relevant: <Yes | No>
+   Strength: <number between 1 and 10 representing how certain you are in your claim>
+   Claim: <All | Partial | None>
+   Requirements: <None | list of requirements>
+   Response: <Your response>
+"""
+
+aaosa_call = {
+    description = "Depending on the mode, returns a natural language string in response."
+    parameters = {
+        type = "object"
+        properties = {
+            inquiry = {
+                type = "string"
+                description = "The inquiry"
+            }
+            mode = {
+                type = "string"
+                description = "'Determine' to ask the agent if the inquiry belongs to it, in its entirety or in part. 'Follow up' to continue the conversation with the agent. 'Fulfill' to ask the agent to fulfill the inquiry, if it can."
+            }
+        }
+        required = [
+            "inquiry",
+            "mode"
+        ]
+    }
+}
+
+aaosa_command = ""
+
+metadata {
+    description = "CI/CD Intelligence Layer: Automated smart database migration analysis and architecture review gating."
+    tags = ["migration", "cicd", "terraform", "compliance", "cost", "reliability"]
+    sample_queries = [
+        "Migrate our legacy Oracle database to AWS RDS MySQL. The specifications are in legacy_project.json",
+        "Generate a migration plan for moving MS SQL Server to GCP Cloud SQL MySQL using legacy_project.json",
+        "Evaluate a migration of IBM DB2 cluster to Azure SQL Database based on legacy_project.json"
+    ]
+}
+
+tools = [
+    # P1: Lead Architect Agent (Frontman Orchestrator)
+    {
+        name = "LeadArchitect"
+        function {
+            description = "Main entry point. Handles user requests to analyze legacy database profiles, draft cloud migrations, and generate compliance reports."
+        }
+        instructions = """
+Your name is `LeadArchitect`. You are the master architect for cloud migrations.
+You receive a migration prompt and a structured `project.json` containing legacy system details.
+You will:
+1. Parse the prompt to identify the source platform (e.g. Oracle, MS SQL Server, DB2) and target cloud provider (e.g. AWS, Azure, GCP). If not present, ask for clarification.
+2. Formulate the resource mapping from on-premises to optimal cloud-native equivalents (e.g., AWS RDS MySQL, Azure SQL, GCP Cloud SQL).
+3. Draft a complete, syntactically correct Terraform (.tf) configuration block representing the target environment.
+4. Call `terraform_validate_tool` to self-validate the drafted code. If it fails, fix the code and validate again. If it fails after retries, stop and report it is blocked.
+5. Call `diagram_render_tool` to draw the target architecture diagram representing the resource mapping and relationships.
+6. Call `SecurityAgent`, `FinOpsAgent`, and `ReliabilityAgent` in parallel, passing them the valid Terraform code, request_id, and prompt details.
+7. Wait for all critic findings, then call `ExecutiveReviewer` to consolidate findings and compile the `Report.pdf`.
+8. Hand over the final report details to `CommunicationsAgent` to send the evaluation email.
+"""
+        tools = [
+            "SecurityAgent",
+            "FinOpsAgent",
+            "ReliabilityAgent",
+            "ExecutiveReviewer",
+            "CommunicationsAgent",
+            "terraform_validate_tool",
+            "diagram_render_tool"
+        ]
+    },
+
+    # P2: Security & Compliance Agent (Critic)
+    {
+        name = "SecurityAgent"
+        function = ${aaosa_call} {
+            description = "Analyzes the drafted Terraform code for security vulnerabilities and compliance gaps."
+            parameters.properties.request_id = {
+                type = "string"
+                description = "The unique request UUID"
+            }
+            parameters.required = ["inquiry", "mode", "request_id"]
+        }
+        instructions = """
+Your name is `SecurityAgent`. You are a security and compliance auditor.
+You receive the drafted Terraform code and a request_id.
+You will call `security_scan_tool` to run a static compliance scan (Checkov/Tfsec) against the Terraform code.
+Parse the scan results, group findings by severity (low, medium, high, critical), and describe any compliance violations (e.g., unencrypted storage volumes, open security groups, lack of IAM policies).
+Report all findings in full, unfiltered, back to the caller.
+""" ${aaosa_instructions}
+        tools = ["security_scan_tool"]
+    },
+
+    # P3: FinOps Cost Agent (Critic)
+    {
+        name = "FinOpsAgent"
+        function = ${aaosa_call} {
+            description = "Calculates monthly cost estimates of the target cloud resources based on the local rate-card file."
+            parameters.properties.request_id = {
+                type = "string"
+                description = "The unique request UUID"
+            }
+            parameters.required = ["inquiry", "mode", "request_id"]
+        }
+        instructions = """
+Your name is `FinOpsAgent`. You are a financial analyst.
+You receive the drafted Terraform code and a request_id.
+You will call `cost_reference_tool` to inspect the resources in the Terraform code and map them to their corresponding monthly rates in the cost reference file.
+Sum the compute, database instance, and storage costs to generate a monthly total.
+For each estimated item, you MUST cite the rate-card entry ID (e.g., aws-rds-mysql-t3-medium) from the reference file.
+Report the final cost breakdown and citations back to the caller.
+""" ${aaosa_instructions}
+        tools = ["cost_reference_tool"]
+    },
+
+    # P4: Reliability Agent (Critic)
+    {
+        name = "ReliabilityAgent"
+        function = ${aaosa_call} {
+            description = "Evaluates the reliability, redundancy, and backup parameters of the drafted Terraform code."
+            parameters.properties.request_id = {
+                type = "string"
+                description = "The unique request UUID"
+            }
+            parameters.required = ["inquiry", "mode", "request_id"]
+        }
+        instructions = """
+Your name is `ReliabilityAgent`. You are a site reliability engineer.
+You receive the drafted Terraform code and a request_id.
+You will call `reliability_check_tool` to examine the configurations for high availability constructs, Multi-AZ deployments, automated backup policies, and redundancy.
+Generate a redundancy score (0-100) based on your evaluations and provide detailed reliability recommendations.
+Report the score and recommendations back to the caller.
+""" ${aaosa_instructions}
+        tools = ["reliability_check_tool"]
+    },
+
+    # P5: Executive Reviewer Agent (Synthesizer)
+    {
+        name = "ExecutiveReviewer"
+        function {
+            description = "Consolidates all critic findings and compiles the final Report.pdf."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = {
+                        type = "string"
+                        description = "The unique request UUID"
+                    }
+                    security_summary = {
+                        type = "string"
+                        description = "Summarized findings from the SecurityAgent"
+                    }
+                    cost_summary = {
+                        type = "string"
+                        description = "Estimated cost details and citations from the FinOpsAgent"
+                    }
+                    reliability_summary = {
+                        type = "string"
+                        description = "Redundancy score and notes from the ReliabilityAgent"
+                    }
+                }
+                required = ["request_id", "security_summary", "cost_summary", "reliability_summary"]
+            }
+        }
+        instructions = """
+Your name is `ExecutiveReviewer`. You are a senior business editor.
+You receive findings summaries from the Security, Cost, and Reliability agents.
+You will:
+1. Merge the inputs into a cohesive executive report categorized under three pillars: Risk & Compliance, Cost Analysis, and System Resilience.
+2. Call `report_render_tool` to generate a professional PDF document. Do not filter out any findings based on severity.
+3. Return the consolidated brief and PDF file path back to the orchestrator.
+"""
+        tools = ["report_render_tool"]
+    },
+
+    # P6: Communications Agent (Corporate Envoy)
+    {
+        name = "CommunicationsAgent"
+        function {
+            description = "Sends the summary email with the PDF and diagram attached."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = {
+                        type = "string"
+                        description = "The unique request UUID"
+                    }
+                    recipient_email = {
+                        type = "string"
+                        description = "Email address of the stakeholder / approver."
+                    }
+                    findings_summary = {
+                        type = "string"
+                        description = "A concise bulleted summary of findings to embed in the email body."
+                    }
+                }
+                required = ["request_id", "recipient_email", "findings_summary"]
+            }
+        }
+        instructions = """
+Your name is `CommunicationsAgent`. You are a corporate communications officer.
+You receive a request_id, findings summary, and the recipient email.
+You will call `smtp_dispatch_tool` to compose and send a professional email.
+The email body will include the concise findings summary and a secure dashboard link.
+The generated `Report.pdf` and architecture diagram files will be attached to the email.
+"""
+        tools = ["smtp_dispatch_tool"]
+    },
+
+    # Coded Tools
+
+    {
+        name = "terraform_validate_tool"
+        class = "terraform_validate_tool.TerraformValidateTool"
+        function {
+            description = "Validates the syntax and structure of the drafted Terraform code."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = { type = "string" }
+                    terraform_code = { type = "string" }
+                }
+                required = ["request_id", "terraform_code"]
+            }
+        }
+    }
+    {
+        name = "diagram_render_tool"
+        class = "diagram_render_tool.DiagramRenderTool"
+        function {
+            description = "Renders an architecture diagram representation of the target cloud configuration."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = { type = "string" }
+                    resource_mappings = { type = "string", description = "Target resource topology described as key-value pairs or text" }
+                }
+                required = ["request_id", "resource_mappings"]
+            }
+        }
+    }
+    {
+        name = "security_scan_tool"
+        class = "security_scan_tool.SecurityScanTool"
+        function {
+            description = "Scans the Terraform code for compliance issues using checkov/tfsec or mock scanning."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = { type = "string" }
+                }
+                required = ["request_id"]
+            }
+        }
+    }
+    {
+        name = "cost_reference_tool"
+        class = "cost_reference_tool.CostReferenceTool"
+        function {
+            description = "Looks up resource costs against the local rate-card file."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = { type = "string" }
+                    resources = {
+                        type = "array"
+                        items = { type = "string" }
+                        description = "List of cloud resource types/sizes identified in the blueprint (e.g. ['aws-ec2-t3-medium', 'aws-ebs-gp3'])"
+                    }
+                }
+                required = ["request_id", "resources"]
+            }
+        }
+    }
+    {
+        name = "reliability_check_tool"
+        class = "reliability_check_tool.ReliabilityCheckTool"
+        function {
+            description = "Validates reliability scores and backup features in the blueprint."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = { type = "string" }
+                }
+                required = ["request_id"]
+            }
+        }
+    }
+    {
+        name = "report_render_tool"
+        class = "report_render_tool.ReportRenderTool"
+        function {
+            description = "Consolidates text summaries into a formatted PDF document."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = { type = "string" }
+                    security_summary = { type = "string" }
+                    cost_summary = { type = "string" }
+                    reliability_summary = { type = "string" }
+                }
+                required = ["request_id", "security_summary", "cost_summary", "reliability_summary"]
+            }
+        }
+    }
+    {
+        name = "smtp_dispatch_tool"
+        class = "smtp_dispatch_tool.SmtpDispatchTool"
+        function {
+            description = "Dispatches email notifications with attached reports."
+            parameters = {
+                type = "object"
+                properties = {
+                    request_id = { type = "string" }
+                    recipient_email = { type = "string" }
+                    subject = { type = "string" }
+                    body = { type = "string" }
+                }
+                required = ["request_id", "recipient_email", "subject", "body"]
+            }
+        }
+    }
+]

@@ -1,0 +1,43 @@
+# Hackathon/parity topology (LLD §10.1). Dev default is SQLite + run.ps1;
+# this compose is the documented Postgres-backed multi-container path.
+# NOTE: Dockerfiles are intentionally not built here (out of hackathon scope) —
+# this is a parity stub showing service boundaries, not a turnkey deploy.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: cicd_intelligence
+      POSTGRES_USER: cicd
+      POSTGRES_PASSWORD: cicd
+    ports: ["5432:5432"]
+
+  neuro-san:
+    build: ../../neuro-san-studio
+    command: python -m neuro_san_studio run --server-only
+    environment:
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY}
+      NVIDIA_NIM_MODEL: ${NVIDIA_NIM_MODEL:-mistralai/mistral-small-4-119b-2603}
+      AGENT_MANIFEST_FILE: /app/registries/manifest.hocon
+      AGENT_TOOL_PATH: /app/coded_tools
+    ports: ["8080:8080"]
+
+  gateway:
+    build: .
+    command: uvicorn gateway.api.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+psycopg2://cicd:cicd@db:5432/cicd_intelligence
+      NEURO_SAN_URL: http://neuro-san:8080
+      MAX_REDRAFT_ATTEMPTS: "4"
+      APPROVAL_WINDOW_HOURS: "48"
+      SUPPORTED_CLOUD_PROVIDERS: "aws,azure,gcp"
+    depends_on: [db, neuro-san]
+    ports: ["8000:8000"]
+    volumes:
+      - ./request_response:/app/request_response
+
+  dashboard:
+    build: ./dashboard-web        # multi-stage: vite build -> nginx serve
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on: [gateway]
+    ports: ["5173:80"]

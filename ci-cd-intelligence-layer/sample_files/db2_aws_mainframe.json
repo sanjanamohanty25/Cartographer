@@ -1,0 +1,52 @@
+{
+  "project_name": "Core-Banking-Ledger-DB2",
+  "organization": "Fifth Meridian Bank",
+  "migration_scope": {
+    "source_environment": "mainframe-adjacent-linux-lpar",
+    "target_cloud_provider": "aws",
+    "preferred_region": "us-east-2"
+  },
+  "database_source_profile": {
+    "database_engine": "IBM DB2",
+    "version": "12.1 for z/OS gateway (LUW replica)",
+    "topology": "pureScale Cluster (4 members)",
+    "total_data_size_gb": 14200,
+    "active_connections": 2400,
+    "transactions_per_second_peak": 12500,
+    "hardware": {
+      "physical_cores_per_node": 40,
+      "ram_gb_per_node": 512,
+      "storage_capacity_tb": 20.0,
+      "storage_type": "NVMe SAN (mirrored)"
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 58.0,
+      "peak_cpu_percent": 94.0,
+      "average_ram_percent": 74.0,
+      "peak_ram_percent": 90.0,
+      "iops_read_peak": 210000,
+      "iops_write_peak": 88000
+    },
+    "security_posture": {
+      "ssl_tls_required": true,
+      "data_at_rest_encrypted": true,
+      "encryption_method": "DB2 Native Encryption + HSM",
+      "public_access_permitted": false,
+      "audit_logging_enabled": true,
+      "subnet_ingress_rules": [
+        { "source_cidr": "10.80.0.0/16", "allowed_port": 50000, "description": "Core banking app" }
+      ]
+    }
+  },
+  "compliance_requirements": { "frameworks": ["PCI-DSS v4.0", "SOX", "Basel III"], "pii_present": true, "retention_policy_years": 12 },
+  "reliability_requirements": {
+    "target_sla": 99.999,
+    "rto_minutes": 2,
+    "rpo_minutes": 0,
+    "backup_retention_days": 120,
+    "high_availability_required": true,
+    "read_replicas_required": 4,
+    "disaster_recovery": "active-active-multi-region"
+  },
+  "cost_constraints": { "monthly_budget_usd": 25000, "environment": "production" }
+}

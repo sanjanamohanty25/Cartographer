@@ -1,0 +1,7 @@
+{
+    "python.defaultInterpreterPath": "c:\\Users\\KIIT\\New folder\\.venv\\Scripts\\python.exe",
+    "python.analysis.extraPaths": [
+        "c:\\Users\\KIIT\\New folder\\neuro-san-studio",
+        "c:\\Users\\KIIT\\New folder\\ci-cd-intelligence-layer"
+    ]
+}

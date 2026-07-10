@@ -1,0 +1,52 @@
+{
+  "project_name": "Insurance-Claims-Ledger",
+  "organization": "Britannia Mutual",
+  "migration_scope": {
+    "source_environment": "on-premises-datacenter-london-dc1",
+    "target_cloud_provider": "gcp",
+    "preferred_region": "europe-west2"
+  },
+  "database_source_profile": {
+    "database_engine": "IBM DB2",
+    "version": "11.5.8 LUW",
+    "topology": "HADR Cluster (Primary + Standby)",
+    "total_data_size_gb": 5100,
+    "active_connections": 1200,
+    "transactions_per_second_peak": 6800,
+    "hardware": {
+      "physical_cores_per_node": 32,
+      "ram_gb_per_node": 256,
+      "storage_capacity_tb": 8.0,
+      "storage_type": "NVMe SAN"
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 55.0,
+      "peak_cpu_percent": 91.0,
+      "average_ram_percent": 72.0,
+      "peak_ram_percent": 89.0,
+      "iops_read_peak": 120000,
+      "iops_write_peak": 44000
+    },
+    "security_posture": {
+      "ssl_tls_required": true,
+      "data_at_rest_encrypted": true,
+      "encryption_method": "DB2 Native Encryption (AES-256)",
+      "public_access_permitted": false,
+      "audit_logging_enabled": true,
+      "subnet_ingress_rules": [
+        { "source_cidr": "10.10.0.0/16", "allowed_port": 50000, "description": "Claims application tier" }
+      ]
+    }
+  },
+  "compliance_requirements": { "frameworks": ["Solvency II", "GDPR"], "pii_present": true, "retention_policy_years": 10 },
+  "reliability_requirements": {
+    "target_sla": 99.995,
+    "rto_minutes": 5,
+    "rpo_minutes": 1,
+    "backup_retention_days": 60,
+    "high_availability_required": true,
+    "read_replicas_required": 3,
+    "disaster_recovery": "cross-region-standby"
+  },
+  "cost_constraints": { "monthly_budget_usd": 12000, "environment": "production" }
+}

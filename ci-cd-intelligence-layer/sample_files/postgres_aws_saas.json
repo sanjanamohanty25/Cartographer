@@ -1,0 +1,46 @@
+{
+  "project_name": "SaaS-Tenant-Metadata",
+  "organization": "Flowdesk Inc",
+  "migration_scope": {
+    "source_environment": "colo-rack-us-east",
+    "target_cloud_provider": "aws",
+    "preferred_region": "us-east-1"
+  },
+  "database_source_profile": {
+    "database_engine": "PostgreSQL",
+    "version": "14.9",
+    "topology": "Primary + 1 Read Replica",
+    "total_data_size_gb": 820,
+    "active_connections": 300,
+    "hardware": {
+      "physical_cores_per_node": 16,
+      "ram_gb_per_node": 64,
+      "storage_capacity_tb": 1.5,
+      "storage_type": "SSD"
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 38.0,
+      "peak_cpu_percent": 79.0,
+      "average_ram_percent": 58.0,
+      "peak_ram_percent": 81.0
+    },
+    "security_posture": {
+      "ssl_tls_required": true,
+      "data_at_rest_encrypted": true,
+      "public_access_permitted": false,
+      "audit_logging_enabled": true,
+      "subnet_ingress_rules": [
+        { "source_cidr": "10.20.0.0/16", "allowed_port": 5432, "description": "App tier" }
+      ]
+    }
+  },
+  "reliability_requirements": {
+    "target_sla": 99.95,
+    "rto_minutes": 15,
+    "rpo_minutes": 5,
+    "backup_retention_days": 14,
+    "high_availability_required": true,
+    "read_replicas_required": 1
+  },
+  "cost_constraints": { "monthly_budget_usd": 3000, "environment": "production" }
+}

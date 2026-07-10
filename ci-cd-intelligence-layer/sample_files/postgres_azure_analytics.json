@@ -1,0 +1,49 @@
+{
+  "project_name": "Product-Analytics-Warehouse",
+  "organization": "Lumen Analytics",
+  "migration_scope": {
+    "source_environment": "on-premises-datacenter-amsterdam",
+    "target_cloud_provider": "azure",
+    "preferred_region": "northeurope"
+  },
+  "database_source_profile": {
+    "database_engine": "PostgreSQL",
+    "version": "15.4",
+    "topology": "Single Node (large vertical)",
+    "total_data_size_gb": 9800,
+    "largest_table_gb": 1200,
+    "active_connections": 180,
+    "hardware": {
+      "physical_cores_per_node": 48,
+      "ram_gb_per_node": 384,
+      "storage_capacity_tb": 12.0,
+      "storage_type": "SSD (RAID-10)"
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 65.0,
+      "peak_cpu_percent": 96.0,
+      "average_ram_percent": 78.0,
+      "peak_ram_percent": 92.0,
+      "iops_read_peak": 90000,
+      "iops_write_peak": 12000
+    },
+    "security_posture": {
+      "ssl_tls_required": true,
+      "data_at_rest_encrypted": false,
+      "public_access_permitted": false,
+      "audit_logging_enabled": true,
+      "subnet_ingress_rules": [
+        { "source_cidr": "10.70.0.0/16", "allowed_port": 5432, "description": "ETL + BI tier" }
+      ]
+    }
+  },
+  "reliability_requirements": {
+    "target_sla": 99.9,
+    "rto_minutes": 30,
+    "rpo_minutes": 15,
+    "backup_retention_days": 21,
+    "high_availability_required": false,
+    "disaster_recovery": "single-region-backup"
+  },
+  "cost_constraints": { "monthly_budget_usd": 7000, "environment": "production" }
+}

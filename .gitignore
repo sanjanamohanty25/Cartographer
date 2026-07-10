@@ -1,0 +1,35 @@
+# --- Python ---
+/.venv
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# --- Secrets / env (never commit keys) ---
+.env
+*.env
+!*.env.example
+
+# --- Node / React (dashboard-web) ---
+node_modules/
+dist/
+*.local
+
+# --- Local DB (SQLite dev store) ---
+*.db
+*.sqlite3
+
+# --- Generated per-request artifacts & logs ---
+ci-cd-intelligence-layer/request_response/
+ci-cd-intelligence-layer/logs/
+logs/
+
+# --- Playwright ---
+test-results/
+playwright-report/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db

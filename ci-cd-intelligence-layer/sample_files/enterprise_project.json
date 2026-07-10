@@ -1,0 +1,94 @@
+{
+  "project_name": "Meridian-Retail-Core-OMS",
+  "organization": "Meridian Retail Group",
+  "business_unit": "Order Management & Fulfilment",
+  "requested_by": "cloud-platform-team@meridian-retail.example",
+  "ticket_ref": "CLOUD-4821",
+  "migration_scope": {
+    "source_environment": "on-premises-datacenter-frankfurt-dc2",
+    "target_cloud_provider": "aws",
+    "preferred_region": "eu-central-1",
+    "secondary_region": "eu-west-1",
+    "migration_window": "2026-09-12T22:00:00Z/2026-09-13T06:00:00Z",
+    "strategy": "replatform",
+    "cutover_type": "near-zero-downtime-with-cdc"
+  },
+  "database_source_profile": {
+    "database_engine": "Oracle Database Enterprise Edition",
+    "version": "19c (19.19.0.0)",
+    "edition_options": ["Partitioning", "Advanced Compression", "Real Application Clusters"],
+    "topology": "2-Node RAC Cluster",
+    "character_set": "AL32UTF8",
+    "schema_count": 47,
+    "total_data_size_gb": 2280,
+    "largest_table_gb": 410,
+    "active_connections": 640,
+    "peak_connections": 1850,
+    "transactions_per_second_peak": 4200,
+    "hardware": {
+      "vendor": "Oracle Exadata X8-2",
+      "physical_cores_per_node": 24,
+      "ram_gb_per_node": 192,
+      "storage_capacity_tb": 4.0,
+      "storage_type": "NVMe Flash (Exadata Smart Flash)",
+      "network_interface_gbps": 25
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 42.0,
+      "peak_cpu_percent": 88.0,
+      "average_ram_percent": 61.0,
+      "peak_ram_percent": 83.0,
+      "iops_read_peak": 68000,
+      "iops_write_peak": 21000,
+      "network_throughput_mbps_avg": 340.0,
+      "network_throughput_mbps_peak": 910.0,
+      "measurement_window_days": 30
+    },
+    "security_posture": {
+      "ssl_tls_required": true,
+      "data_at_rest_encrypted": true,
+      "encryption_method": "Oracle TDE (AES-256)",
+      "public_access_permitted": false,
+      "iam_integration": "Active Directory / Kerberos",
+      "audit_logging_enabled": true,
+      "subnet_ingress_rules": [
+        { "source_cidr": "10.40.0.0/16", "allowed_port": 1521, "description": "OMS application tier" },
+        { "source_cidr": "10.42.7.0/24", "allowed_port": 1521, "description": "Batch / ETL jobs" },
+        { "source_cidr": "10.55.0.0/24", "allowed_port": 1521, "description": "BI reporting cluster" }
+      ]
+    }
+  },
+  "application_dependencies": [
+    { "name": "OMS API (Spring Boot)", "protocol": "JDBC", "criticality": "tier-1" },
+    { "name": "Inventory Sync (Kafka Connect)", "protocol": "CDC", "criticality": "tier-1" },
+    { "name": "Nightly Settlement Batch", "protocol": "PL/SQL", "criticality": "tier-2" },
+    { "name": "Tableau BI Extracts", "protocol": "JDBC read-replica", "criticality": "tier-3" }
+  ],
+  "compliance_requirements": {
+    "frameworks": ["PCI-DSS v4.0", "GDPR", "ISO 27001"],
+    "data_residency": "EU-only",
+    "pii_present": true,
+    "retention_policy_years": 7
+  },
+  "reliability_requirements": {
+    "target_sla": 99.99,
+    "rto_minutes": 10,
+    "rpo_minutes": 2,
+    "backup_retention_days": 35,
+    "high_availability_required": true,
+    "multi_az_required": true,
+    "read_replicas_required": 2,
+    "disaster_recovery": "cross-region-standby"
+  },
+  "cost_constraints": {
+    "monthly_budget_usd": 6500,
+    "commitment_term": "1-year-savings-plan",
+    "environment": "production"
+  },
+  "tags": {
+    "cost-center": "CC-3391",
+    "owner": "order-management",
+    "environment": "production",
+    "compliance": "pci-gdpr"
+  }
+}

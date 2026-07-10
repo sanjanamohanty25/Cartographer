@@ -1,0 +1,52 @@
+{
+  "project_name": "Storefront-Catalog-DB",
+  "organization": "Cartwheel Commerce",
+  "migration_scope": {
+    "source_environment": "on-premises-datacenter-dallas",
+    "target_cloud_provider": "aws",
+    "preferred_region": "us-west-2"
+  },
+  "database_source_profile": {
+    "database_engine": "Microsoft SQL Server",
+    "version": "2019 Enterprise",
+    "topology": "Always On Availability Group (3 replicas)",
+    "total_data_size_gb": 1600,
+    "active_connections": 900,
+    "transactions_per_second_peak": 5200,
+    "hardware": {
+      "physical_cores_per_node": 16,
+      "ram_gb_per_node": 96,
+      "storage_capacity_tb": 2.0,
+      "storage_type": "NVMe SSD"
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 44.0,
+      "peak_cpu_percent": 93.0,
+      "average_ram_percent": 63.0,
+      "peak_ram_percent": 88.0,
+      "iops_read_peak": 54000,
+      "iops_write_peak": 18000
+    },
+    "security_posture": {
+      "ssl_tls_required": true,
+      "data_at_rest_encrypted": true,
+      "encryption_method": "TDE",
+      "public_access_permitted": false,
+      "audit_logging_enabled": true,
+      "subnet_ingress_rules": [
+        { "source_cidr": "10.60.0.0/16", "allowed_port": 1433, "description": "Web/app tier" },
+        { "source_cidr": "10.61.0.0/24", "allowed_port": 1433, "description": "Search indexer" }
+      ]
+    }
+  },
+  "compliance_requirements": { "frameworks": ["PCI-DSS v4.0"], "pii_present": true },
+  "reliability_requirements": {
+    "target_sla": 99.95,
+    "rto_minutes": 10,
+    "rpo_minutes": 3,
+    "backup_retention_days": 30,
+    "high_availability_required": true,
+    "read_replicas_required": 2
+  },
+  "cost_constraints": { "monthly_budget_usd": 5000, "environment": "production" }
+}

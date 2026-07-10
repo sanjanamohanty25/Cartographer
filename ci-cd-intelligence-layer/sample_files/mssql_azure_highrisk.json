@@ -1,0 +1,44 @@
+{
+  "project_name": "Legacy-CRM-Reporting",
+  "organization": "Nordwind Logistics",
+  "migration_scope": {
+    "source_environment": "on-premises-branch-server-room",
+    "target_cloud_provider": "azure",
+    "preferred_region": "westeurope"
+  },
+  "database_source_profile": {
+    "database_engine": "Microsoft SQL Server",
+    "version": "2016 SP2 Standard",
+    "topology": "Single Node Instance",
+    "total_data_size_gb": 340,
+    "active_connections": 90,
+    "hardware": {
+      "physical_cores_per_node": 8,
+      "ram_gb_per_node": 32,
+      "storage_capacity_tb": 0.75,
+      "storage_type": "Local SAS HDD"
+    },
+    "utilization_metrics": {
+      "average_cpu_percent": 22.0,
+      "peak_cpu_percent": 61.0,
+      "average_ram_percent": 48.0,
+      "peak_ram_percent": 70.0
+    },
+    "security_posture": {
+      "ssl_tls_required": false,
+      "data_at_rest_encrypted": false,
+      "public_access_permitted": true,
+      "audit_logging_enabled": false,
+      "subnet_ingress_rules": [
+        { "source_cidr": "0.0.0.0/0", "allowed_port": 1433, "description": "Legacy open access (flagged for remediation)" }
+      ]
+    }
+  },
+  "reliability_requirements": {
+    "target_sla": 99.0,
+    "backup_retention_days": 0,
+    "high_availability_required": false,
+    "disaster_recovery": "none"
+  },
+  "cost_constraints": { "monthly_budget_usd": 800, "environment": "production" }
+}
