@@ -6,3 +6,4 @@ reportlab
 pydantic
 requests
 python-dotenv
+typer
