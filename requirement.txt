@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+httpx
+reportlab
+pydantic
+requests
+python-dotenv
+typer
